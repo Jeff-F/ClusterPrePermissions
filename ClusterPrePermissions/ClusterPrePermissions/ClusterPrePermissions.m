@@ -81,6 +81,16 @@ static ClusterPrePermissions *__sharedInstance;
                       grantButtonTitle:(NSString *)grantButtonTitle
                      completionHandler:(ClusterPrePermissionCompletionHandler)completionHandler
 {
+    //iOS 5, we don't show alert for contact.
+    if (SYSTEM_VERSION_LESS_THAN(@"6.0")) {
+        //Since the Address Book permission requirement was only recently added as of iOS 6 you don't have to ask for permission.
+        //default return authorised and not showing the alert.
+        if (completionHandler) {
+            completionHandler(YES, ClusterDialogResultGranted, ClusterDialogResultGranted);
+        }
+        return;
+    }
+
     if (requestTitle.length == 0) {
         requestTitle = NSLocalizedString(@"Access Photos?", );
     }
@@ -88,6 +98,7 @@ static ClusterPrePermissions *__sharedInstance;
     denyButtonTitle  = [self titleFor:ClusterTitleTypeDeny fromTitle:denyButtonTitle];
     grantButtonTitle = [self titleFor:ClusterTitleTypeRequest fromTitle:grantButtonTitle];
 
+    //iOS 6.0 +
     ALAuthorizationStatus status = [ALAssetsLibrary authorizationStatus];
     if (status == ALAuthorizationStatusNotDetermined) {
         self.photoPermissionCompletionHandler = completionHandler;
@@ -162,7 +173,7 @@ static ClusterPrePermissions *__sharedInstance;
         //Since the Address Book permission requirement was only recently added as of iOS 6 you don't have to ask for permission.
         //default return authorised and not showing the alert.
         if (completionHandler) {
-            completionHandler(YES, ClusterDialogResultNoActionTaken, ClusterDialogResultNoActionTaken);
+            completionHandler(YES, ClusterDialogResultGranted, ClusterDialogResultGranted);
         }
         return;
     }
