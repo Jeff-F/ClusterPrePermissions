@@ -387,11 +387,13 @@
 		65C599F318F35A4600AE202C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ClusterPrePermissions/ClusterPrePermissions-Prefix.pch";
 				INFOPLIST_FILE = "ClusterPrePermissions/ClusterPrePermissions-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				PRODUCT_NAME = ClusterPrePermissions;
 				WRAPPER_EXTENSION = app;
 			};
@@ -400,11 +402,13 @@
 		65C599F418F35A4600AE202C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ClusterPrePermissions/ClusterPrePermissions-Prefix.pch";
 				INFOPLIST_FILE = "ClusterPrePermissions/ClusterPrePermissions-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				PRODUCT_NAME = ClusterPrePermissions;
 				WRAPPER_EXTENSION = app;
 			};

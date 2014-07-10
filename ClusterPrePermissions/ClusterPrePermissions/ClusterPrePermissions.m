@@ -24,8 +24,20 @@
 //  SOFTWARE.
 //
 
-#import "ClusterPrePermissions.h"
+typedef NS_ENUM(NSInteger, ClusterTitleType) {
+    ClusterTitleTypeRequest,
+    ClusterTitleTypeDeny
+};
 
+//refer to http://stackoverflow.com/a/7848772/544251
+#define SYSTEM_VERSION_EQUAL_TO(v)                  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedSame)
+#define SYSTEM_VERSION_GREATER_THAN(v)              ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedDescending)
+#define SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(v)  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
+#define SYSTEM_VERSION_LESS_THAN(v)                 ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedAscending)
+#define SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(v)     ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedDescending)
+
+
+#import "ClusterPrePermissions.h"
 #import <AddressBook/AddressBook.h>
 #import <AssetsLibrary/AssetsLibrary.h>
 #import <CoreLocation/CoreLocation.h>
@@ -70,14 +82,12 @@ static ClusterPrePermissions *__sharedInstance;
                      completionHandler:(ClusterPrePermissionCompletionHandler)completionHandler
 {
     if (requestTitle.length == 0) {
-        requestTitle = @"Access Photos?";
+        requestTitle = NSLocalizedString(@"Access Photos?", );
     }
-    if (denyButtonTitle.length == 0) {
-        denyButtonTitle = @"Not Now";
-    }
-    if (grantButtonTitle.length == 0) {
-        grantButtonTitle = @"Give Access";
-    }
+
+    denyButtonTitle  = [self titleFor:ClusterTitleTypeDeny fromTitle:denyButtonTitle];
+    grantButtonTitle = [self titleFor:ClusterTitleTypeRequest fromTitle:grantButtonTitle];
+
     ALAuthorizationStatus status = [ALAssetsLibrary authorizationStatus];
     if (status == ALAuthorizationStatusNotDetermined) {
         self.photoPermissionCompletionHandler = completionHandler;
@@ -147,15 +157,23 @@ static ClusterPrePermissions *__sharedInstance;
                          grantButtonTitle:(NSString *)grantButtonTitle
                         completionHandler:(ClusterPrePermissionCompletionHandler)completionHandler
 {
+    //iOS 5, we don't show alert for contact.
+    if (SYSTEM_VERSION_LESS_THAN(@"6.0")) {
+        //Since the Address Book permission requirement was only recently added as of iOS 6 you don't have to ask for permission.
+        //default return authorised and not showing the alert.
+        if (completionHandler) {
+            completionHandler(YES, ClusterDialogResultNoActionTaken, ClusterDialogResultNoActionTaken);
+        }
+        return;
+    }
+
     if (requestTitle.length == 0) {
-        requestTitle = @"Access Contacts?";
+        requestTitle = NSLocalizedString(@"Access Contacts?", );
     }
-    if (denyButtonTitle.length == 0) {
-        denyButtonTitle = @"Not Now";
-    }
-    if (grantButtonTitle.length == 0) {
-        grantButtonTitle = @"Give Access";
-    }
+
+    denyButtonTitle = [self titleFor:ClusterTitleTypeDeny fromTitle:denyButtonTitle];
+    grantButtonTitle = [self titleFor:ClusterTitleTypeRequest fromTitle:grantButtonTitle];
+
     ABAuthorizationStatus status = ABAddressBookGetAuthorizationStatus();
     if (status == kABAuthorizationStatusNotDetermined) {
         self.contactPermissionCompletionHandler = completionHandler;
@@ -224,14 +242,12 @@ static ClusterPrePermissions *__sharedInstance;
                         completionHandler:(ClusterPrePermissionCompletionHandler)completionHandler
 {
     if (requestTitle.length == 0) {
-        requestTitle = @"Access Location?";
+        requestTitle = NSLocalizedString(@"Access Location?", );
     }
-    if (denyButtonTitle.length == 0) {
-        denyButtonTitle = @"Not Now";
-    }
-    if (grantButtonTitle.length == 0) {
-        grantButtonTitle = @"Give Access";
-    }
+
+    denyButtonTitle = [self titleFor:ClusterTitleTypeDeny fromTitle:denyButtonTitle];
+    grantButtonTitle = [self titleFor:ClusterTitleTypeRequest fromTitle:grantButtonTitle];
+
     CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
     if (status == kCLAuthorizationStatusNotDetermined) {
         self.locationPermissionCompletionHandler = completionHandler;
@@ -306,14 +322,12 @@ static ClusterPrePermissions *__sharedInstance;
                                completionHandler:(ClusterPrePermissionCompletionHandler)completionHandler
 {
     if (requestTitle.length == 0) {
-        requestTitle = @"Allow Push Notifications?";
+        requestTitle = NSLocalizedString(@"Allow Push Notifications?", );
     }
-    if (denyButtonTitle.length == 0) {
-        denyButtonTitle = @"Not Now";
-    }
-    if (grantButtonTitle.length == 0) {
-        grantButtonTitle = @"Give Access";
-    }
+
+    denyButtonTitle = [self titleFor:ClusterTitleTypeDeny fromTitle:denyButtonTitle];
+    grantButtonTitle = [self titleFor:ClusterTitleTypeRequest fromTitle:grantButtonTitle];
+
     PushAuthorizationStatus status = [self pushAuthorizationStatus];
     if (status == kPushAuthorizationStatusNotDetermined) {
         self.pushNotificationPermissionCompletionHandler = completionHandler;
@@ -420,4 +434,20 @@ static ClusterPrePermissions *__sharedInstance;
     }
 }
 
+#pragma mark - Titles
+- (NSString *)titleFor:(ClusterTitleType)titleType fromTitle:(NSString *)title
+{
+    switch (titleType) {
+        case ClusterTitleTypeDeny:
+            title = (title.length == 0) ? NSLocalizedString(@"Not Now", ): title;
+            break;
+        case ClusterTitleTypeRequest:
+            title = (title.length == 0) ? NSLocalizedString(@"Give Access", ): title;
+            break;
+        default:
+            title = @"";
+            break;
+    }
+    return title;
+}
 @end
