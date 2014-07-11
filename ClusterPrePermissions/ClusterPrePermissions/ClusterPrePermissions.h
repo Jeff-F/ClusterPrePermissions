@@ -71,6 +71,7 @@ typedef void (^ClusterPrePermissionCompletionHandler)(BOOL hasPermission,
 + (instancetype) sharedPermissions;
 + (void)setResultForRigisterPushNotification:(BOOL)didRegisterPushNotification;
 + (BOOL)didRegisterPushNotification;
++ (PushAuthorizationStatus)pushAuthorizationStatus;
 
 - (void) showPhotoPermissionsWithTitle:(NSString *)requestTitle
                                message:(NSString *)message

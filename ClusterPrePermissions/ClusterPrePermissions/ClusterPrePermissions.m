@@ -391,6 +391,11 @@ static ClusterPrePermissions *__sharedInstance;
     }
 }
 
++ (PushAuthorizationStatus)pushAuthorizationStatus
+{
+    return [[ClusterPrePermissions sharedPermissions] pushAuthorizationStatus];
+}
+
 - (PushAuthorizationStatus)pushAuthorizationStatus
 {
     UIRemoteNotificationType types = [[UIApplication sharedApplication] enabledRemoteNotificationTypes];
