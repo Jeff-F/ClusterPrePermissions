@@ -7,18 +7,10 @@
 //
 
 #import "CLAppDelegate.h"
-
+#import "ClusterPrePermissions.h"
 #import "PermissionsTestViewController.h"
 
 @implementation CLAppDelegate
-
-+(void) initialize
-{
-    //This user default flag will allow us to check if we've asked for push notification permissions
-    NSDictionary *pushNotificationFlag = @{@"pushNotification" : [NSNumber numberWithBool:false]};
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    [defaults registerDefaults:pushNotificationFlag ];
-}
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
@@ -27,15 +19,17 @@
     self.window.backgroundColor = [UIColor whiteColor];
     self.window.rootViewController = [[PermissionsTestViewController alloc] initWithNibName:nil bundle:nil];
     [self.window makeKeyAndVisible];
+
+    NSLog(@"didRegisterPushNotification:%d", [ClusterPrePermissions didRegisterPushNotification]);
     return YES;
+
 }
 
 -(void)application:(UIApplication*) application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
 {
-    bool pushNotification = [[NSUserDefaults standardUserDefaults] boolForKey:@"pushNotification"];
-    if(!pushNotification) {
-        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"pushNotification"];
-        [[NSUserDefaults standardUserDefaults] synchronize];
+    BOOL didRegisterPushNotification = [ClusterPrePermissions didRegisterPushNotification];
+    if(!didRegisterPushNotification) {
+        [ClusterPrePermissions setResultForRigisterPushNotification:YES];
     }
     //Register device token stuff with whatever push notification system you're using
 }
@@ -43,11 +37,12 @@
 -(void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
 {
     //Handle information from remote notification here
+    NSLog(@"%s, userinfo:%@", __func__, userInfo);
 }
 
 -(void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error
 {
-    NSLog(@"%@", error);
+    NSLog(@"%s, %@", __func__, error);
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application

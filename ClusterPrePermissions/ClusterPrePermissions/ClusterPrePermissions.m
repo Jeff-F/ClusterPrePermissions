@@ -37,6 +37,9 @@ typedef NS_ENUM(NSInteger, ClusterTitleType) {
 #define SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(v)     ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedDescending)
 
 
+#define kDidRegisterPushNotification @"didRegisterForPush"
+
+
 #import "ClusterPrePermissions.h"
 #import <AddressBook/AddressBook.h>
 #import <AssetsLibrary/AssetsLibrary.h>
@@ -392,17 +395,30 @@ static ClusterPrePermissions *__sharedInstance;
 {
     UIRemoteNotificationType types = [[UIApplication sharedApplication] enabledRemoteNotificationTypes];
     
-    if(types) {
+    if(types != UIRemoteNotificationTypeNone) {
         return kPushAuthorizationStatusAuthorized;
     }
-    bool didRegisterforPush =[[NSUserDefaults standardUserDefaults] boolForKey:@"pushNotification"];
-    //If true, they declined to receive push notifications from the actual dialog
+
+    BOOL didRegisterforPush = [ClusterPrePermissions didRegisterPushNotification];
+    //If YES, they declined to receive push notifications from the actual dialog
     if(didRegisterforPush) {
+        //user grant permission the first time, so didRegisterForPush is YES,
+        //but later user changes his mind so he deny the permission, and causes UIRemoteNotificationType to be UIRemoteNotificationTypeNone
         return kPushAuthorizationStatusDenied;
     }
     return kPushAuthorizationStatusNotDetermined;
 }
 
++ (BOOL)didRegisterPushNotification
+{
+    return [[NSUserDefaults standardUserDefaults] boolForKey:kDidRegisterPushNotification];
+}
+
++ (void)setResultForRigisterPushNotification:(BOOL)didRegisterPushNotification
+{
+    [[NSUserDefaults standardUserDefaults] setBool:didRegisterPushNotification forKey:kDidRegisterPushNotification];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
 
 #pragma mark - UIAlertViewDelegate
 
