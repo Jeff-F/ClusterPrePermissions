@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = "ClusterPrePermissions"
-  s.version          = "0.1.5"
+  s.version          = "0.1.6"
   s.summary          = "Cluster's pre-permissions utility to ask users using their own dialog for photos or contacts access, before making the system-based request."
   s.description      = <<-DESC
                        Cluster's reusable pre-permissions utility that lets developers ask the 
@@ -13,7 +13,7 @@ Pod::Spec.new do |s|
   s.screenshots      = "http://f.cl.ly/items/2I1V1R3b3q3A3H3y3u18/new-1.jpg"
   s.license          = 'MIT'
   s.author           = { "Rizwan Sattar" => "rsattar@gmail.com" }
-  s.source           = { :git => "git@github.com:jianpx/ClusterPrePermissions.git", :tag => s.version.to_s }
+  s.source           = { :git => "https://github.com/jianpx/ClusterPrePermissions.git", :tag => s.version.to_s }
   s.social_media_url = 'https://twitter.com/cluster'
 
   s.platform     = :ios, '5.0'
