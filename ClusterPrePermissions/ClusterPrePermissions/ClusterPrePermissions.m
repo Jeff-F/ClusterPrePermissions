@@ -416,7 +416,11 @@ static ClusterPrePermissions *__sharedInstance;
 
 + (BOOL)didRegisterPushNotification
 {
-    return [[NSUserDefaults standardUserDefaults] boolForKey:kDidRegisterPushNotification];
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    if ([defaults objectForKey:kDidRegisterPushNotification] == nil) {
+        return NO;
+    }
+    return [defaults boolForKey:kDidRegisterPushNotification];
 }
 
 + (void)setResultForRigisterPushNotification:(BOOL)didRegisterPushNotification
