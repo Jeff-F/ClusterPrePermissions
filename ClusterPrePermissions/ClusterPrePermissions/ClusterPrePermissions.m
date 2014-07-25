@@ -44,6 +44,7 @@ typedef NS_ENUM(NSInteger, ClusterTitleType) {
 #import <AddressBook/AddressBook.h>
 #import <AssetsLibrary/AssetsLibrary.h>
 #import <CoreLocation/CoreLocation.h>
+#import <AVFoundation/AVFoundation.h>
 
 @interface ClusterPrePermissions () <UIAlertViewDelegate, CLLocationManagerDelegate>
 
@@ -59,6 +60,9 @@ typedef NS_ENUM(NSInteger, ClusterTitleType) {
 
 @property (strong, nonatomic) UIAlertView *prePushNotificationPermissionAlertView;
 @property (copy, nonatomic) ClusterPrePermissionCompletionHandler pushNotificationPermissionCompletionHandler;
+
+@property (strong, nonatomic) UIAlertView *preVideoCapturePermissionAlertView;
+@property (copy, nonatomic) ClusterPrePermissionCompletionHandler videoCapturePermissionCompletionHandler;
 
 @end
 
@@ -430,8 +434,6 @@ static ClusterPrePermissions *__sharedInstance;
 }
 
 #pragma mark - UIAlertViewDelegate
-
-
 - (void) alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
     if (alertView == self.prePhotoPermissionAlertView) {
@@ -467,10 +469,83 @@ static ClusterPrePermissions *__sharedInstance;
             //User granted access, now show the real permission dialog for push notifications
             [self showActualPushNotificationPermissionAlert];
         }
+    } else if (alertView == self.preVideoCapturePermissionAlertView) {
+        if (buttonIndex == alertView.cancelButtonIndex) {
+            // User said NO, that jerk.
+            [self fireVideoCapturePermissionCompletionHandler];
+        } else {
+            // User granted access, now try to trigger the real video capture access
+            [self showActualVideoCapturePermissionAlert];
+        }
     }
 }
 
-#pragma mark - Titles
+#pragma mark - VideoCapture Permissions
+- (void)showVideoCapturePermissionsWithTitle:(NSString *)requestTitle
+                                     message:(NSString *)message
+                             denyButtonTitle:(NSString *)denyButtonTitle
+                            grantButtonTitle:(NSString *)grantButtonTitle
+                           completionHandler:(ClusterPrePermissionCompletionHandler)completionHandler
+{
+    if (requestTitle.length == 0) {
+        requestTitle = NSLocalizedString(@"Access Camera?", );
+    }
+
+    denyButtonTitle  = [self titleFor:ClusterTitleTypeDeny fromTitle:denyButtonTitle];
+    grantButtonTitle = [self titleFor:ClusterTitleTypeRequest fromTitle:grantButtonTitle];
+    //iOS 7.0 +
+    AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+    if (status == AVAuthorizationStatusNotDetermined) {
+        self.videoCapturePermissionCompletionHandler = completionHandler;
+        self.preVideoCapturePermissionAlertView = [[UIAlertView alloc] initWithTitle:requestTitle
+                                                                             message:message
+                                                                            delegate:self
+                                                                   cancelButtonTitle:denyButtonTitle
+                                                                   otherButtonTitles:grantButtonTitle, nil];
+        [self.preVideoCapturePermissionAlertView show];
+    } else {
+        if (completionHandler) {
+            completionHandler((status == AVAuthorizationStatusAuthorized),
+                              ClusterDialogResultNoActionTaken,
+                              ClusterDialogResultNoActionTaken);
+        }
+    }
+}
+
+- (void) fireVideoCapturePermissionCompletionHandler
+{
+    AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+    if (self.videoCapturePermissionCompletionHandler) {
+        ClusterDialogResult userDialogResult = ClusterDialogResultGranted;
+        ClusterDialogResult systemDialogResult = ClusterDialogResultGranted;
+        if (status == AVAuthorizationStatusNotDetermined) {
+            userDialogResult = ClusterDialogResultDenied;
+            systemDialogResult = ClusterDialogResultNoActionTaken;
+        } else if (status == AVAuthorizationStatusAuthorized) {
+            userDialogResult = ClusterDialogResultGranted;
+            systemDialogResult = ClusterDialogResultGranted;
+        } else if (status == AVAuthorizationStatusDenied) {
+            userDialogResult = ClusterDialogResultGranted;
+            systemDialogResult = ClusterDialogResultDenied;
+        } else if (status == AVAuthorizationStatusRestricted) {
+            userDialogResult = ClusterDialogResultGranted;
+            systemDialogResult = ClusterDialogResultParentallyRestricted;
+        }
+        self.videoCapturePermissionCompletionHandler((status == AVAuthorizationStatusAuthorized),
+                                                userDialogResult,
+                                                systemDialogResult);
+        self.videoCapturePermissionCompletionHandler = nil;
+    }
+}
+
+- (void)showActualVideoCapturePermissionAlert
+{
+    [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
+        [self fireVideoCapturePermissionCompletionHandler];
+    }];
+}
+
+#pragma mark - Helper methods
 - (NSString *)titleFor:(ClusterTitleType)titleType fromTitle:(NSString *)title
 {
     switch (titleType) {

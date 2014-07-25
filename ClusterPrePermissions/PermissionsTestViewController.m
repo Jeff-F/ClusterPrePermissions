@@ -15,6 +15,7 @@
 @property (strong, nonatomic) IBOutlet UILabel *contactsPermissionResultLabel;
 @property (strong, nonatomic) IBOutlet UILabel *locationPermissionResultLabel;
 @property (strong, nonatomic) IBOutlet UILabel *pushNotificationPermissionResultLabel;
+@property (weak, nonatomic) IBOutlet UILabel *videoCapturePermissionResultLabel;
 
 @end
 
@@ -27,6 +28,11 @@
         // Custom initialization
     }
     return self;
+}
+
+- (BOOL)prefersStatusBarHidden
+{
+    return YES;
 }
 
 - (void)viewDidLoad
@@ -109,6 +115,22 @@
                                         }];
 }
 
+- (IBAction)onVideoCapturePermissionsButtonTapped:(id)sender
+{
+    ClusterPrePermissions *permissions = [ClusterPrePermissions sharedPermissions];
+    [permissions showVideoCapturePermissionsWithTitle:@"Allow Video Capture Permission?"
+                                              message:@"Your message here"
+                                      denyButtonTitle:@"Not now"
+                                     grantButtonTitle:@"Give access"
+                                    completionHandler:^(BOOL hasPermission,
+                                                        ClusterDialogResult userDialogResult,
+                                                        ClusterDialogResult systemDialogResult) {
+                                        [self updateResultLabel:self.videoCapturePermissionResultLabel
+                                                 withPermission:hasPermission
+                                               userDialogResult:userDialogResult
+                                             systemDialogResult:systemDialogResult];
+                                    }];
+}
 
 - (void) updateResultLabel:(UILabel *)resultLabel
             withPermission:(BOOL)hasPermission

@@ -97,4 +97,11 @@ typedef void (^ClusterPrePermissionCompletionHandler)(BOOL hasPermission,
                                  grantButtonTitle:(NSString *)grantButtonTitle
                                 completionHandler:(ClusterPrePermissionCompletionHandler)completionHandler;
 
+//iOS 7.0+
+- (void) showVideoCapturePermissionsWithTitle:(NSString *)requestTitle
+                                      message:(NSString *)message
+                              denyButtonTitle:(NSString *)denyButtonTitle
+                             grantButtonTitle:(NSString *)grantButtonTitle
+                            completionHandler:(ClusterPrePermissionCompletionHandler)completionHandler;
+
 @end

@@ -20,7 +20,6 @@
     self.window.rootViewController = [[PermissionsTestViewController alloc] initWithNibName:nil bundle:nil];
     [self.window makeKeyAndVisible];
 
-    NSLog(@"didRegisterPushNotification:%d", [ClusterPrePermissions didRegisterPushNotification]);
     return YES;
 
 }
