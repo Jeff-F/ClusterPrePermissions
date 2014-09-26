@@ -3,7 +3,7 @@
 Cluster's reusable pre-permissions utility that lets developers ask the users on their own dialog for photos or contacts access, before making the system-based request. This is based on [Cluster's post *The Right Way to Ask Users for iOS Permissions*](https://medium.com/p/96fa4eb54f2c).
 
 # Requirements
-* Xcode 6+
+* from version 0.1.8 on, please use Xcode 6, before 0.1.7(include), you can use Xcode 5
 * ARC
 
 
