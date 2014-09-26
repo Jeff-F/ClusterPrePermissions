@@ -2,11 +2,16 @@
 
 Cluster's reusable pre-permissions utility that lets developers ask the users on their own dialog for photos or contacts access, before making the system-based request. This is based on [Cluster's post *The Right Way to Ask Users for iOS Permissions*](https://medium.com/p/96fa4eb54f2c).
 
+# Requirements
+* Xcode 6+
+* ARC
+
+
 # Why use Pre-Permissions?
 
-On iOS, when your code tries to access the Camera Roll or the Address Book, the system automatically shows an alert to the user. 
+On iOS, when your code tries to access the Camera Roll or the Address Book, the system automatically shows an alert to the user.
 
-If the user says "Don't Allow" to this alert, **you have burned your one-and-only chance to get that access**. The user will have to jump through a 5-step process outside of your app to re-enable access, which they will rarely, if ever, do. 
+If the user says "Don't Allow" to this alert, **you have burned your one-and-only chance to get that access**. The user will have to jump through a 5-step process outside of your app to re-enable access, which they will rarely, if ever, do.
 
 Often the user wasn't event expecting the access alert, and by habit will tap "Don't Allow". This is a lose-lose scenario for both you and your user.
 

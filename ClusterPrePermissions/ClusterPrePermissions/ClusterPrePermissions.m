@@ -367,10 +367,24 @@ static ClusterPrePermissions *__sharedInstance;
 - (void) showActualPushNotificationPermissionAlert
 {
     //Modify this to change which type of push notifications are allowed
-    [[UIApplication sharedApplication] registerForRemoteNotificationTypes:(UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeSound | UIRemoteNotificationTypeAlert)];
+    [self registerForRemoteNotificationTypes:(UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeSound | UIRemoteNotificationTypeAlert)];
     [self firePushNotificationPermissionCompletionHandler];
 }
 
+- (void)registerForRemoteNotificationTypes:(NSUInteger)types
+{
+    // Register for Push Notitications, if running iOS 8
+    if ([[UIApplication sharedApplication] respondsToSelector:@selector(registerUserNotificationSettings:)]) {
+        UIUserNotificationType userNotificationTypes = types;
+        UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:userNotificationTypes
+                                                                                 categories:nil];
+        [[UIApplication sharedApplication] registerUserNotificationSettings:settings];
+        [[UIApplication sharedApplication] registerForRemoteNotifications];
+    } else {
+        // Register for Push Notifications before iOS 8
+        [[UIApplication sharedApplication] registerForRemoteNotificationTypes:types];
+    }
+}
 
 - (void) firePushNotificationPermissionCompletionHandler
 {
@@ -402,10 +416,19 @@ static ClusterPrePermissions *__sharedInstance;
 
 - (PushAuthorizationStatus)pushAuthorizationStatus
 {
-    UIRemoteNotificationType types = [[UIApplication sharedApplication] enabledRemoteNotificationTypes];
-    
-    if(types != UIRemoteNotificationTypeNone) {
-        return kPushAuthorizationStatusAuthorized;
+    //iOS 8.0+
+    if ([[UIApplication sharedApplication] respondsToSelector:@selector(currentUserNotificationSettings)]) {
+        UIUserNotificationSettings *settings = [[UIApplication sharedApplication] currentUserNotificationSettings];
+        UIUserNotificationType types = settings.types;
+        if (types != UIUserNotificationTypeNone) {
+            return kPushAuthorizationStatusAuthorized;
+        }
+    //iOS 7.0 and before
+    } else {
+        UIRemoteNotificationType types = [[UIApplication sharedApplication] enabledRemoteNotificationTypes];
+        if(types != UIRemoteNotificationTypeNone) {
+            return kPushAuthorizationStatusAuthorized;
+        }
     }
 
     BOOL didRegisterforPush = [ClusterPrePermissions didRegisterPushNotification];
