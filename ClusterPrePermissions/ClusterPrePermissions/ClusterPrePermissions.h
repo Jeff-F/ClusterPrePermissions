@@ -53,6 +53,52 @@ typedef enum {
 } PushAuthorizationStatus;
 
 /**
+ * A general descriptor for the possible outcomes of Authorization Status.
+ */
+typedef NS_ENUM(NSInteger, ClusterAuthorizationStatus) {
+    /// Permission status undetermined.
+    ClusterAuthorizationStatusUnDetermined,
+    /// Permission denied.
+    ClusterAuthorizationStatusDenied,
+    /// Permission authorized.
+    ClusterAuthorizationStatusAuthorized,
+    /// The iOS parental permissions prevented access.
+    ClusterAuthorizationStatusRestricted
+};
+
+/**
+ * Authorization methods for the usage of location services.
+ */
+typedef NS_ENUM(NSInteger, ClusterLocationAuthorizationType) {
+    /// the “when-in-use” authorization grants the app to start most
+    /// (but not all) location services while it is in the foreground.
+    ClusterLocationAuthorizationTypeWhenInUse,
+    /// the “always” authorization grants the app to start all
+    /// location services
+    ClusterLocationAuthorizationTypeAlways,
+};
+
+/**
+ * Authorization methods for the usage of event services.
+ */
+typedef NS_ENUM(NSInteger, ClusterEventAuthorizationType) {
+    /// Authorization for events only
+    ClusterEventAuthorizationTypeEvent,
+    /// Authorization for reminders only
+    ClusterEventAuthorizationTypeReminder
+};
+
+/**
+ * Authorization methods for the usage of AV services.
+ */
+typedef NS_ENUM(NSInteger, ClusterAVAuthorizationType) {
+    /// Authorization for Camera only
+    ClusterAVAuthorizationTypeCamera,
+    /// Authorization for Microphone only
+    ClusterAVAuthorizationTypeMicrophone
+};
+
+/**
  * General callback for permissions. 
  * @param hasPermission Returns YES if system permission was granted 
  *                      or is already available, NO otherwise.
@@ -73,6 +119,32 @@ typedef void (^ClusterPrePermissionCompletionHandler)(BOOL hasPermission,
 + (BOOL)didRegisterPushNotification;
 + (PushAuthorizationStatus)pushAuthorizationStatus;
 
++ (ClusterAuthorizationStatus) cameraPermissionAuthorizationStatus;
++ (ClusterAuthorizationStatus) microphonePermissionAuthorizationStatus;
++ (ClusterAuthorizationStatus) photoPermissionAuthorizationStatus;
++ (ClusterAuthorizationStatus) contactsPermissionAuthorizationStatus;
++ (ClusterAuthorizationStatus) eventPermissionAuthorizationStatus:(ClusterEventAuthorizationType)eventType;
++ (ClusterAuthorizationStatus) locationPermissionAuthorizationStatus;
+
+- (void) showAVPermissionsWithType:(ClusterAVAuthorizationType)mediaType
+                             title:(NSString *)requestTitle
+                           message:(NSString *)message
+                   denyButtonTitle:(NSString *)denyButtonTitle
+                  grantButtonTitle:(NSString *)grantButtonTitle
+                completionHandler:(ClusterPrePermissionCompletionHandler)completionHandler;
+
+- (void) showCameraPermissionsWithTitle:(NSString *)requestTitle
+                                message:(NSString *)message
+                        denyButtonTitle:(NSString *)denyButtonTitle
+                       grantButtonTitle:(NSString *)grantButtonTitle
+                      completionHandler:(ClusterPrePermissionCompletionHandler)completionHandler;
+
+- (void) showMicrophonePermissionsWithTitle:(NSString *)requestTitle
+                                    message:(NSString *)message
+                            denyButtonTitle:(NSString *)denyButtonTitle
+                           grantButtonTitle:(NSString *)grantButtonTitle
+                          completionHandler:(ClusterPrePermissionCompletionHandler)completionHandler;
+
 - (void) showPhotoPermissionsWithTitle:(NSString *)requestTitle
                                message:(NSString *)message
                        denyButtonTitle:(NSString *)denyButtonTitle
@@ -85,11 +157,25 @@ typedef void (^ClusterPrePermissionCompletionHandler)(BOOL hasPermission,
                          grantButtonTitle:(NSString *)grantButtonTitle
                         completionHandler:(ClusterPrePermissionCompletionHandler)completionHandler;
 
+- (void) showEventPermissionsWithType:(ClusterEventAuthorizationType)eventType
+                                Title:(NSString *)requestTitle
+                                  message:(NSString *)message
+                          denyButtonTitle:(NSString *)denyButtonTitle
+                         grantButtonTitle:(NSString *)grantButtonTitle
+                        completionHandler:(ClusterPrePermissionCompletionHandler)completionHandler;
+
 - (void) showLocationPermissionsWithTitle:(NSString *)requestTitle
                                   message:(NSString *)message
                           denyButtonTitle:(NSString *)denyButtonTitle
                          grantButtonTitle:(NSString *)grantButtonTitle
                         completionHandler:(ClusterPrePermissionCompletionHandler)completionHandler;
+
+- (void) showLocationPermissionsForAuthorizationType:(ClusterLocationAuthorizationType)authorizationType
+                                               title:(NSString *)requestTitle
+                                             message:(NSString *)message
+                                     denyButtonTitle:(NSString *)denyButtonTitle
+                                    grantButtonTitle:(NSString *)grantButtonTitle
+                                   completionHandler:(ClusterPrePermissionCompletionHandler)completionHandler;
 
 - (void) showPushNotificationPermissionsWithTitle:(NSString *)requestTitle
                                           message:(NSString *)message
